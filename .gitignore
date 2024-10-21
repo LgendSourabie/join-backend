@@ -1,0 +1,6 @@
+data.py
+db.sqlite3
+manage.py
+/join_app/migrations
+/join
+/join_auth_permission/migrations
