@@ -1,178 +1,171 @@
 from rest_framework import serializers
-from join_app.models import Subtask, Contact,Task
+from join_app.models import Category, Subtask, Contact,Task
 from django.utils import timezone
-
+from django.contrib.auth.models import User
 
 
 class ContactSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Contact
-        fields = ['id','name','email','phone_number']
+        fields = ['id','name','email','telephone','color_pattern']
+    
+
 
     def create(self, validated_data):
         return super().create(validated_data)
 
+    def validate(self, data):
+        user = self.context['request'].user
+        email = data.get('email')
+        telephone = data.get('telephone')
+
+        
+        if Contact.objects.filter(author=user, email=email).exists():
+            raise serializers.ValidationError({
+                'email': 'You already have a contact with this email.'
+            })
+
+     
+        if telephone and Contact.objects.filter(author=user, telephone=telephone).exists():
+            raise serializers.ValidationError({
+                'telephone': 'You already have a contact with this telephone number.'
+            })
+
+        return data
+
+class CategorySerializer(serializers.ModelSerializer):
+    """
+    category serializer which enable only the title of a category  
+  
+    """
+    class Meta:
+        model = Category
+        fields = ['id','title']
 
 class SubtaskSerializer(serializers.ModelSerializer):
+    """
+    subtask serializer accepting the description of the task which 
+    cannot be left blank. If so then the task will be created but the 
+    corresponding description will not be consider.
+    
+    """
+
+    description = serializers.CharField(required=True,allow_blank=False)
     class Meta:
         model = Subtask
-        fields=['id','description']
+        fields=['id','description','is_completed']
 
     def create(self, validated_data):
         return super().create(validated_data)
-
-
-# class CategorySerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Category
-#         fields=['id','title']
-
-#     def create(self, validated_data):
-#         return super().create(validated_data)
 
 
 class TaskSerializer(serializers.ModelSerializer):
-    subtasks =serializers.ListField(child=serializers.IntegerField(),write_only=True)
-    contacts=serializers.ListField(child=serializers.IntegerField(),write_only=True)
+    """
+    - Task serializer accepting subtasks and assigned contacts when
+    the task is being created. Here the assigned contacts and subtasks
+    fields (the others remain normal)  need to be passed as follow:
+    {
+    "task_subtasks":[{"description":"enter your description"}, {"description":"enter your description"},etc...]
+    "assigned_to_contact_ids":[1,2,5] // list of IDs of the contacts to be assigned the task
+    } 
 
+    - When updating a task the two field must be passed on the same way but for TASK_SUBTASK the dic- field must 
+    have the id of each subtask which need to be updated (added to "description") otherwise a new subtask will be created
+   
+    """
+    
+
+    description = serializers.CharField(required=False)
+    subtasks = SubtaskSerializer(many=True, read_only = True)
+    assigned_to =ContactSerializer(many=True, read_only = True)
+    task_subtasks = serializers.ListField(child=serializers.DictField(), write_only=True, required=False)
+    assigned_to_contact_ids =serializers.ListField(child=serializers.IntegerField(),write_only=True, required=False)
     class Meta:
         model= Task
-        fields=['id','title','description','due_date','priority','category','subtasks','contacts']
-        
-    # def __init__(self, *args, **kwargs):
-    #     user = kwargs['context']['request'].user  # Get the current user
-    #     super(TaskSerializer, self).__init__(*args, **kwargs)       
-    #     if user.is_authenticated:
-    #         self.fields['category'].queryset = Category.objects.filter(author= user)
+        fields=['id','title','description','due_date','priority','category','task_group','subtasks','task_subtasks','assigned_to','assigned_to_contact_ids']
 
-  
-    def validate_contacts(self,value):
+    def create(self, validated_data):
+        assigned_to_contact_ids = validated_data.pop('assigned_to_contact_ids',[])
+        task_subtasks_data = validated_data.pop('task_subtasks',[])
+
+
+        task = Task.objects.create(**validated_data)
+        task.assigned_to.set(assigned_to_contact_ids)
+
+        subtask_instances = []
+        for subtask_data in task_subtasks_data:
+
+            if len(subtask_data["description"]) != 0:
+                subtask_instance, created = Subtask.objects.get_or_create(**subtask_data)
+                subtask_instances.append(subtask_instance)
+            else:
+                raise serializers.ValidationError({"blank_field_error":"This field is required"})
+        task.subtasks.set(subtask_instances)
+        return task
+    
+
+    def update(self, instance, validated_data):
+        assigned_to_contact_ids = validated_data.pop('assigned_to_contact_ids', None)
+        task_subtasks_data = validated_data.pop('task_subtasks', None)
+
+
+        instance = super().update(instance, validated_data)
+
+        if assigned_to_contact_ids is not None:
+            instance.assigned_to.set(assigned_to_contact_ids)
+
+        subtask_instances = []
+
+        if task_subtasks_data is not None:
+            for subtask_data in task_subtasks_data:
+                subtask_id = subtask_data.get('id')
+                if subtask_id:
+                    subtask_instance = Subtask.objects.get(id=subtask_id)
+                    subtask_instance.description = subtask_data.get('description', subtask_instance.description)
+                    subtask_instance.is_completed = subtask_data.get('is_completed', subtask_instance.is_completed)
+                    subtask_instance.save()
+                else:
+                    subtask_instance = Subtask.objects.create(**subtask_data)
+                subtask_instances.append(subtask_instance)
+
+            instance.subtasks.set(subtask_instances)
+
+        instance.refresh_from_db()
+
+        return instance
+    
+
+    def validate_assigned_to_contact_ids(self,value):
+        user = self.context['request'].user
         contacts = Contact.objects.filter(id__in=value)
+        contact_ids = Contact.objects.filter(id__in=value).values_list('author_id', flat=True)
+        contact_ids = list(contact_ids)
         if(len(contacts) != len(value)):
             raise serializers.ValidationError('One Id not found')
+        elif not all(pk == user.id for pk in contact_ids):
+            raise serializers.ValidationError("You cannot assign a contact that does not belong to you.")
         return value
     
-    def validate_subtasks(self,value):
-        subtasks = Subtask.objects.filter(id__in=value)
-        if(len(subtasks) != len(value)):
-            raise serializers.ValidationError('One Id not found')
-        return value
-
     def validate_due_date(self, value):
         if value <= timezone.now().date():
             raise serializers.ValidationError("Due date cannot be in the past or the present date.")
         return value
     
 
-
-# class UserProfileSerializer(serializers.ModelSerializer):
-#     contacts = ContactSerializer(many=True, read_only=True)
-#     tasks = TaskSerializer(many=True, read_only=True)
-
-
-#     class Meta:
-#         model = UserProfile
-#         fields=['id','username','email','password','contacts','tasks']
-#         extra_kwargs={
-#             "password":{
-#                 "write_only":True
-#             }
-#         }
-
-
-#     def create(self, validated_data):
-#         validated_data['password']=make_password(validated_data['password'])
-#         return User.objects.create(**validated_data)
+class AccountsSerializer(serializers.ModelSerializer):
+    """
+    Account serializer enabling contacts and tasks in one user account. 
+    When the user data is fetched all his contacts and tasks will be included 
+    in the contacts. 
+    """
     
-#     def update(self, instance, validated_data):
-#         if 'password' in validated_data:
-#             validated_data['password']=make_password(validated_data['password'])
-#         super(UserProfileSerializer, self).update(instance, validated_data)
+    contacts = ContactSerializer(many = True, read_only=True, source='contact_set')
+    tasks = TaskSerializer(many = True, read_only=True, source='task_set')
 
 
-    # def get_board_tasks(self,obj):
-    #     return obj.tasks.count()
-    
-
-    # def get_number_contacts(self,obj):
-    #     return obj.contacts.count()
-
-   
-
-    # {
-    #     "id": 1,
-    #     "username": "Ibrahim Traore",
-    #     "email": "ibra@gmail.com"
-    # },
-    # {
-    #     "id": 2,
-    #     "username": "Youssef Benki",
-    #     "email": "youssef@yahoo.com"
-    # },
-    # {
-    #     "id": 3,
-    #     "username": "Rafael Müller",
-    #     "email": "mueller@yahoo.com"
-    # },
-    # {
-    #     "id": 4,
-    #     "username": "Thomas Erdinger",
-    #     "email": "thomas@gmx.de"
-    # }
+    class Meta:
+        model =User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'contacts', 'tasks']
 
 
-
-    # 
-
-#     [
-#     {
-#         "id": 1,
-#         "contact_name": "Patrick Semmler",
-#         "email": "patrick@gmx.de",
-#         "phone_number": "015 14589871",
-#         "users": 2
-#     },
-#     {
-#         "id": 2,
-#         "contact_name": "Lompo Toure",
-#         "email": "lompo@gmail.bf",
-#         "phone_number": "015 563558996",
-#         "users": 3
-#     },
-#     {
-#         "id": 3,
-#         "contact_name": "Sylvain Vy",
-#         "email": "vy@gmail.ci",
-#         "phone_number": "0155 563568996",
-#         "users": 1
-#     },
-#     {
-#         "id": 4,
-#         "contact_name": "Issa Sylla",
-#         "email": "issa@gmx.de",
-#         "phone_number": "0155 56389896",
-#         "users": 1
-#     },
-#     {
-#         "id": 5,
-#         "contact_name": "Moussa Dims",
-#         "email": "dim@gmx.de",
-#         "phone_number": "0158 56389896",
-#         "users": 1
-#     },
-#     {
-#         "id": 6,
-#         "contact_name": "Reo Soso",
-#         "email": "reo@gmx.de",
-#         "phone_number": "0158 56539896",
-#         "users": 4
-#     },
-#     {
-#         "id": 7,
-#         "contact_name": "Phylo Reoa",
-#         "email": "phil@gmx.de",
-#         "phone_number": "0156 56579896",
-#         "users": 4
-#     }
-# ]
