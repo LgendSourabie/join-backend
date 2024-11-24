@@ -20,13 +20,13 @@ class ContactSerializer(serializers.ModelSerializer):
         email = data.get('email')
         telephone = data.get('telephone')
 
-        
-        if Contact.objects.filter(author=user, email=email).exists():
+        instance_id = self.instance.id if self.instance else None
+ 
+        if Contact.objects.filter(author=user, email=email).exclude(id=instance_id).exists():
             raise serializers.ValidationError({
                 'email': 'You already have a contact with this email.'
             })
 
-     
         if telephone and Contact.objects.filter(author=user, telephone=telephone).exists():
             raise serializers.ValidationError({
                 'telephone': 'You already have a contact with this telephone number.'
@@ -89,7 +89,6 @@ class TaskSerializer(serializers.ModelSerializer):
         assigned_to_contact_ids = validated_data.pop('assigned_to_contact_ids',[])
         task_subtasks_data = validated_data.pop('task_subtasks',[])
 
-
         task = Task.objects.create(**validated_data)
         task.assigned_to.set(assigned_to_contact_ids)
 
@@ -108,7 +107,6 @@ class TaskSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         assigned_to_contact_ids = validated_data.pop('assigned_to_contact_ids', None)
         task_subtasks_data = validated_data.pop('task_subtasks', None)
-
 
         instance = super().update(instance, validated_data)
 

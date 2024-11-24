@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from join_app.api.utils import generateContactColor
+from join_app.api.utils import generate_contact_color
 
 
 class Contact(models.Model):
@@ -8,7 +8,7 @@ class Contact(models.Model):
     name=models.CharField(max_length=50)
     email = models.EmailField(max_length=254)
     telephone = models.CharField(max_length=20,blank=True, null=True)
-    color_pattern = models.CharField(max_length=25, default=generateContactColor())
+    color_pattern = models.CharField(max_length=25, default=generate_contact_color())
     author = models.ForeignKey(User,on_delete=models.CASCADE, default=1)
 
     class Meta:

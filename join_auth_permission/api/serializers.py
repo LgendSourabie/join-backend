@@ -1,13 +1,13 @@
 from django.contrib.auth.models import User
-from rest_framework.response import Response
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from join_app.models import Contact
-from join_app.api.utils import generateContactColor
+from join_app.api.utils import generate_contact_color
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.utils.encoding import force_bytes
+from join_auth_permission.api.utils import message_body,set_full_name
 
 
 class UserAccountSerializer(serializers.ModelSerializer):
@@ -116,7 +116,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         )
         user.set_password(self.validated_data['password'])
         user.save()
-        Contact.objects.create(name=f"{last_name} {first_name}",email=self.validated_data['email'],color_pattern=generateContactColor(),telephone='XXX XXX XXX XXX',author=user)
+        Contact.objects.create(name=set_full_name(first_name,last_name),email=self.validated_data['email'],color_pattern=generate_contact_color(),telephone='XXX XXX XXX XXX',author=user)
         return user
     
 
@@ -136,51 +136,17 @@ class ResetPasswordSerializer(serializers.Serializer):
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         reset_link = f"http://localhost:4200/account/reset-password/{uid}/{token}/"
 
-        
-        send_mail(
-            subject="Join Password Reset",
-            message=f"""
-            # Hello!
-            # I received your request to reset your password, which you can do by clicking below.
+        subject,message,from_email,recipient_list = message_body(user.first_name,reset_link,email)
+       
+        email_to_send = EmailMessage(
+            subject=subject,
+            body=message,
+            from_email=from_email,
+            to=recipient_list
 
-            # Please don't forward this email to other people, as it contains confidential information specific
-            # to your account.
-
-            # If you did not make this request then simply ignore this email.
-
-            # Link: {reset_link}
-
-  <html>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <h2>Hello {user.first_name}!</h2>
-            <p>
-                I received your request to reset your password. Click the button below to reset it:
-            </p>
-            <a href="{reset_link}" style="
-                display: inline-block;
-                background-color: #007BFF;
-                color: white;
-                text-decoration: none;
-                padding: 10px 20px;
-                border-radius: 1000px;
-                font-size: 16px;
-                font-weight: bold;
-            ">Reset Password</a>
-            <p style="margin-top: 20px;">
-                If you did not make this request, simply ignore this email.
-            </p>
-            <p>
-                Please don't forward this email to others as it contains sensitive information.
-            </p>
-            <p>Best regards,<br>Join</p>
-        </body>
-    </html>
-""",
-
-            from_email="sourabrahim@gmail.com",
-            recipient_list=[email],
-        )
-
+        ) 
+        email_to_send.content_subtype = "html"
+        email_to_send.send()
 
 
 

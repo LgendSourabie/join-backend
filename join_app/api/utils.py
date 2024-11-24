@@ -1,6 +1,6 @@
 import random
 
-def generateContactColor():
+def generate_contact_color():
    """
     this function constructs an random RGB color when a contact is created
     which is used as contact background color

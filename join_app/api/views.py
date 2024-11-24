@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from join_app.api.permissions import IsAuthenticatedOrNot, IsUserAccount
 from join_app.api.serializers import  AccountsSerializer, CategorySerializer, ContactSerializer, SubtaskSerializer, TaskSerializer
-from rest_framework import mixins, generics
+from rest_framework import  generics
 from join_app.models import Category, Subtask, Task, Contact
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.contrib.auth.models import User
@@ -61,14 +61,14 @@ class ContactDetail(APIView):
     def get(self, request, pk):
         contact = self.get_contact_or_404(pk)
         self.check_object_permission(request, contact)
-        serializer = ContactSerializer(contact)
+        serializer = ContactSerializer(contact,context={'request': request})
         return Response(serializer.data)
     
     
     def put(self, request, pk):
         contact = self.get_contact_or_404(pk)
         self.check_object_permission(request, contact)
-        serializer = ContactSerializer(contact, data=request.data, partial=True)
+        serializer = ContactSerializer(contact, data=request.data, partial=True,context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
