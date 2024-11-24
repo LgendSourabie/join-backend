@@ -27,6 +27,6 @@ Best regards,
 Ibrahima SOURABIE
 Join  
 """
-        from_email = 'sourabrahim@gmail.com'
+        from_email = 'sourabrahim@gmail.com'  
         recipient_list = [instance.email,'sourabrahim@gmail.com']
         send_mail(subject, message, from_email, recipient_list)

@@ -30,8 +30,8 @@ def message_body(username,reset_link,user_email):
                 </html>
             """
 
-    from_email="sourabrahim@gmail.com"
-    recipient_list=[user_email,'sourabrahim@gmail.com']
+    from_email="contact@ibrahima-sourabie.com"
+    recipient_list=[user_email,'contact@ibrahima-sourabie.com']
     return subject,message,from_email,recipient_list
 
 
