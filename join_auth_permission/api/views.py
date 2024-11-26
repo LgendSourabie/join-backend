@@ -4,11 +4,15 @@ from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import AllowAny, IsAdminUser 
+from join_app.api.utils import generate_contact_color
+from join_app.models import Contact
 from join_auth_permission.api.permissions import IsOwnerOrReadOnlyIfAdmin
 from join_auth_permission.api.serializers import LoginSerializer, RegistrationSerializer, ResetPasswordConfirmSerializer, ResetPasswordSerializer, UserAccountSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 from rest_framework import status
+import random
+from join_auth_permission.api.utils import generate_guest_email, set_full_name
 
 
 
@@ -46,12 +50,39 @@ class Login(ObtainAuthToken):
             data={
                 "token":token.key,
                 "username":validated_user.username,
-                "email":validated_user.email
+                "email":validated_user.email,
+                 "is_guest": False,
             }
             return Response(data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
-            
+
+class GuestLogin(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = generate_guest_email()
+        first_name = 'Guest'
+
+        user = User.objects.create_user(
+            username=generate_guest_email() ,
+            email=email,
+            first_name=first_name,
+        )
+        user.save()
+        Contact.objects.create(name=set_full_name(first_name,last_name=''),email=email,color_pattern=generate_contact_color(),telephone='XXX XXX XXX XXX',author=user)
+
+        login(request, user)
+   
+        token, _ = Token.objects.get_or_create(user=user)
+
+   
+        return Response({
+            "token": token.key,
+            "email": user.email,
+            "first_name": user.first_name,
+            "is_guest": True,
+        }, status=status.HTTP_201_CREATED)
 
 class Registration(APIView):
     permission_classes = [AllowAny]

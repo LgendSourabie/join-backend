@@ -1,6 +1,8 @@
   
 
 from django.template.loader import render_to_string
+import random
+from django.utils.crypto import get_random_string
 
 def message_body(username, reset_link, user_email):
     """
@@ -24,3 +26,20 @@ def set_full_name(first_name, last_name):
         return f"{last_name} {first_name}"
     else:
         return f"{first_name}"
+    
+
+
+def generate_guest_email():
+    domains = [
+        "test.com",
+        "guest.com",
+        "temp.com",
+        "no-mail.com",
+        "mock.com",
+        "demo.com",
+        "rnd-mail.com",
+    ]
+
+    random_domain = random.choice(domains)
+    email = f"join_{get_random_string(5)}@{random_domain}" 
+    return email
