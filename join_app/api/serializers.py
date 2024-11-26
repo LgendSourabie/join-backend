@@ -89,6 +89,7 @@ class TaskSerializer(serializers.ModelSerializer):
         assigned_to_contact_ids = validated_data.pop('assigned_to_contact_ids',[])
         task_subtasks_data = validated_data.pop('task_subtasks',[])
 
+        request = self.context.get('request')
         task = Task.objects.create(**validated_data)
         task.assigned_to.set(assigned_to_contact_ids)
 
@@ -96,7 +97,7 @@ class TaskSerializer(serializers.ModelSerializer):
         for subtask_data in task_subtasks_data:
 
             if len(subtask_data["description"]) != 0:
-                subtask_instance, created = Subtask.objects.get_or_create(**subtask_data)
+                subtask_instance = Subtask.objects.create(**subtask_data, author=request.user)
                 subtask_instances.append(subtask_instance)
             else:
                 raise serializers.ValidationError({"blank_field_error":"This field is required"})
@@ -157,7 +158,7 @@ class AccountsSerializer(serializers.ModelSerializer):
     When the user data is fetched all his contacts and tasks will be included 
     in the contacts. 
     """
-    
+
     contacts = ContactSerializer(many = True, read_only=True, source='contact_set')
     tasks = TaskSerializer(many = True, read_only=True, source='task_set')
 

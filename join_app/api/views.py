@@ -12,6 +12,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.contrib.auth.models import User
 from rest_framework.exceptions import PermissionDenied
 
+
 class ContactList(APIView):
     """
     List all users or create a new user if data is provided
@@ -106,10 +107,24 @@ class CategoryDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CategorySerializer
     permission_classes = [IsAdminUser | IsAuthenticatedOrNot]
 
+class CategoryOptionList(APIView):
+    """
+    View for retrieving Categories options.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+      
+        options = [  {"id":index+1,"title":option[0]} for index,option in enumerate(Task.category_options)]
+        
+
+        return Response(options, status=status.HTTP_200_OK)
+
 class SubtaskList(generics.ListAPIView):
     """Subtask list. Subtasks are created with task and are bound to the corresponding
     task. However, the list of subtask can be inspected by admin user in the backend.
     User can only see their subtasks included in their Tasks.
+    No subtask can be created (POST not allowed) separately. There are created only with tasks.
     """
     queryset = Subtask.objects.all()
     serializer_class = SubtaskSerializer
@@ -150,6 +165,7 @@ class TaskList(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+        
 
     def get_queryset(self):
 
