@@ -8,7 +8,7 @@ from join_app.api.permissions import IsAuthenticatedOrNot, IsUserAccount
 from join_app.api.serializers import  AccountsSerializer, CategorySerializer, ContactSerializer, SubtaskSerializer, TaskSerializer
 from rest_framework import  generics
 from join_app.models import Category, Subtask, Task, Contact
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django.contrib.auth.models import User
 from rest_framework.exceptions import PermissionDenied
 
@@ -111,7 +111,7 @@ class CategoryOptionList(APIView):
     """
     View for retrieving Categories options.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request):
       
