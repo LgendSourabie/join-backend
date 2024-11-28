@@ -34,14 +34,14 @@ For the sake of experiment let's do it:
     - python manage.py makemigrations
     - python manage.py migrate
 
-    PLEASE LOOK INTO THE DB AND YOU WILL NOTICE THAT THE TABLES OF THE MODEL NI THE APP ARE NOT CREATED.
+PLEASE LOOK INTO THE DB AND YOU WILL NOTICE THAT THE TABLES OF THE MODEL NI THE APP ARE NOT CREATED.
 
 #### 2. let's create now the Table
 
     - python manage.py makemigrations join_app join_auth_permission
     - python manage.py migrate
 
-    NOW THE DB WILL CONTAIN ALL THE TABLES FROM JOIN_APP
+NOW THE DB WILL CONTAIN ALL THE TABLES FROM JOIN_APP
 
 #### START OF THE DEVELOPMENT SERVER
 
