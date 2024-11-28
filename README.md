@@ -38,8 +38,10 @@ For the sake of experiment let's do it:
 
 #### 2. let's create now the Table
 
-- python manage.py makemigrations join_app join_auth_permission
-- python manage.py migrate
+    - python manage.py makemigrations join_app join_auth_permission
+    - python manage.py migrate
+
+    NOW THE DB WILL CONTAIN ALL THE TABLES FROM JOIN_APP
 
 #### START OF THE DEVELOPMENT SERVER
 
