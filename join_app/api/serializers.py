@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from join_app.models import Category, Subtask, Contact,Task
 from django.utils import timezone
+from datetime import datetime
 from django.contrib.auth.models import User
 
 
@@ -75,7 +76,8 @@ class TaskSerializer(serializers.ModelSerializer):
    
     """
     
-
+    due_date = serializers.CharField(required=False, allow_blank=True)
+    category = serializers.CharField(required=False, allow_blank =True)
     description = serializers.CharField(required=False)
     subtasks = SubtaskSerializer(many=True, read_only = True)
     assigned_to =ContactSerializer(many=True, read_only = True)
@@ -115,7 +117,7 @@ class TaskSerializer(serializers.ModelSerializer):
             instance.assigned_to.set(assigned_to_contact_ids)
 
         subtask_instances = []
-
+        request = self.context.get('request')
         if task_subtasks_data is not None:
             for subtask_data in task_subtasks_data:
                 subtask_id = subtask_data.get('id')
@@ -125,7 +127,7 @@ class TaskSerializer(serializers.ModelSerializer):
                     subtask_instance.is_completed = subtask_data.get('is_completed', subtask_instance.is_completed)
                     subtask_instance.save()
                 else:
-                    subtask_instance = Subtask.objects.create(**subtask_data)
+                    subtask_instance = Subtask.objects.create(**subtask_data, author=request.user)
                 subtask_instances.append(subtask_instance)
 
             instance.subtasks.set(subtask_instances)
@@ -143,12 +145,37 @@ class TaskSerializer(serializers.ModelSerializer):
         if(len(contacts) != len(value)):
             raise serializers.ValidationError('One Id not found')
         elif not all(pk == user.id for pk in contact_ids):
-            raise serializers.ValidationError("You cannot assign a contact that does not belong to you.")
+            raise serializers.ValidationError("You cannot assign a contact that does not belong to you")
         return value
     
     def validate_due_date(self, value):
-        if value <= timezone.now().date():
-            raise serializers.ValidationError("Due date cannot be in the past or the present date.")
+
+        if value is None or value == "":
+            raise serializers.ValidationError("This field is required")
+        else:
+            try:
+                datetime_object = datetime.strptime(value, "%Y-%m-%d")
+            except:
+                raise serializers.ValidationError(f""""{value}" is not a correct date or date format""")
+            timezone_aware_date = timezone.make_aware(datetime_object)
+            if timezone_aware_date.date() <= timezone.now().date():
+                raise serializers.ValidationError("Due date cannot be in the past or the present date")
+        return value
+
+
+
+    def validate_title(self, value):
+        if value == "":
+            raise serializers.ValidationError("This field is required")
+        return value
+    
+    def validate_category(self, value):
+        options = [option[0] for option in Task.category_options]
+
+        if value == "":
+            raise serializers.ValidationError("This field is required")
+        elif value not in options:
+            raise serializers.ValidationError(f""" "{value}" is not a valid category""")
         return value
     
 

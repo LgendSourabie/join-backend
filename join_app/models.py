@@ -8,7 +8,7 @@ class Contact(models.Model):
     name=models.CharField(max_length=50)
     email = models.EmailField(max_length=254)
     telephone = models.CharField(max_length=20,blank=True, null=True)
-    color_pattern = models.CharField(max_length=25, default=generate_contact_color())
+    color_pattern = models.CharField(max_length=25, default=generate_contact_color)
     author = models.ForeignKey(User,on_delete=models.CASCADE, default=1)
 
     class Meta:
@@ -45,10 +45,10 @@ class Task(models.Model):
     priority_options = [('urgent','urgent'),('medium','medium'),('low','low')]
     task_group_options = [('await feedback','await feedback'),('todo','todo'),('done','done'),('in progress','in progress')]
     category_options = [('technical task','technical task'), ('user story','user story'),('team event','team event'), ('others','others')]
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=50, blank=True, null=True)
     description = models.TextField(max_length=300)
-    due_date = models.DateField()  
-    category = models.CharField(max_length=50, choices=category_options,default="others")
+    due_date = models.CharField(max_length=20, blank=True, null=True)  
+    category = models.CharField(max_length=50, blank=True, null = True, choices=category_options,default="others")
     priority = models.CharField(max_length=50, choices=priority_options,default="medium")
     task_group = models.CharField(max_length=50, choices=task_group_options,default="todo")
     assigned_to = models.ManyToManyField(Contact, related_name='tasks')

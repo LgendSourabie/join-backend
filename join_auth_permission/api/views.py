@@ -53,9 +53,9 @@ class Login(ObtainAuthToken):
                 "email":validated_user.email,
                  "is_guest": False,
             }
-            return Response(data, status=status.HTTP_201_CREATED)
+            return Response(data, status=status.HTTP_200_OK)
         else:
-            return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class GuestLogin(APIView):
     permission_classes = [AllowAny]
@@ -82,7 +82,7 @@ class GuestLogin(APIView):
             "email": user.email,
             "first_name": user.first_name,
             "is_guest": True,
-        }, status=status.HTTP_201_CREATED)
+        }, status=status.HTTP_200_OK)
 
 class Registration(APIView):
     permission_classes = [AllowAny]
@@ -100,7 +100,7 @@ class Registration(APIView):
             }
             return Response(data, status=status.HTTP_201_CREATED)
         else:
-            return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
 class ResetPasswordView(APIView):
@@ -117,7 +117,7 @@ class ResetPasswordView(APIView):
             serializer.save()
             return Response({"message": "Password reset link sent to your email!"}, status=status.HTTP_200_OK)
         else:
-            return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
       
 class ResetPasswordConfirmView(APIView):
     """
@@ -133,5 +133,5 @@ class ResetPasswordConfirmView(APIView):
             serializer.save()
             return Response({"message":"Password successfully reset!"}, status=status.HTTP_200_OK)
         else:
-            return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         

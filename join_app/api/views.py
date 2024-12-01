@@ -69,6 +69,12 @@ class ContactDetail(APIView):
     def put(self, request, pk):
         contact = self.get_contact_or_404(pk)
         self.check_object_permission(request, contact)
+        old_telephone = contact.telephone
+        new_telephone = request.data['telephone']
+
+        if new_telephone == old_telephone:
+            request.data.pop('telephone')
+
         serializer = ContactSerializer(contact, data=request.data, partial=True,context={'request': request})
         if serializer.is_valid():
             serializer.save()
@@ -164,7 +170,8 @@ class TaskList(generics.ListCreateAPIView):
         return {'request': self.request}
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        if serializer.is_valid():
+            serializer.save(author=self.request.user)
         
 
     def get_queryset(self):

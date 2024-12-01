@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from join_app.models import Contact
-from join_app.api.utils import generate_contact_color
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
@@ -116,7 +115,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         )
         user.set_password(self.validated_data['password'])
         user.save()
-        Contact.objects.create(name=set_full_name(first_name,last_name),email=self.validated_data['email'],color_pattern=generate_contact_color(),telephone='XXX XXX XXX XXX',author=user)
+        Contact.objects.create(name=set_full_name(first_name,last_name),email=self.validated_data['email'],telephone='XXX XXX XXX XXX',author=user)
         return user
     
 

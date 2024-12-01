@@ -1,4 +1,5 @@
 import random
+import time
 
 def generate_contact_color():
    """
@@ -7,7 +8,7 @@ def generate_contact_color():
 
    Return: RGB color
    """
-   
+   random.seed(time.time_ns())
    r_Channel = random.randint(0, 255)
    g_Channel = random.randint(0,  255)
    b_Channel = random.randint(0, 255)
