@@ -1,7 +1,7 @@
-# Directive for executing the project
+# DIRECTIVE FOR RUNNING THE PROJECT
 
 All the packages use during the implementation are listed in the requirement.txt data with their
-corresponding version. Since virtual environments can go beyond lot of GB of data, the venv of the project is not pushed into Github and a virtual env. need to be created and the packages need to be install inside.
+corresponding version. Since virtual environments can go beyond lot of GB of data, the venv of the project is not pushed into Github and a virtual env. need to be created and the packages need to be installed inside.
 
 ---
 
@@ -9,14 +9,16 @@ corresponding version. Since virtual environments can go beyond lot of GB of dat
 
 #### 1. creation of venv
 
-    - python -m venv ["name of the virtual env"] ,
+    - python -m venv ["name of the virtual env"] (for Windows users)
+    - python3 -m venv ["name of the virtual env"] (for MAC or Linux users)
     e.x. : python -m venv join_venv
 
 #### 2. activation of venv
 
-    - .\join_venv\Scripts\activate and press ENTER
+    - .\join_venv\Scripts\activate and press ENTER    (for Windows users)
+    - source join_venv/bin/activate and press ENTER (for MAC or Linux users)
 
-#### 3. Install the packeges from requirements.txt
+#### 3. Install the packages from requirements.txt
 
     - pip install -r requirements.txt
 

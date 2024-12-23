@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
+import os
 
 @receiver(post_save, sender=User)
 def send_welcome_email(sender, instance, created, **kwargs):
@@ -13,8 +14,8 @@ def send_welcome_email(sender, instance, created, **kwargs):
         }
         message = render_to_string("emails/registration.html", context)
 
-        from_email = 'sourabrahim@gmail.com'  
-        recipient_list = [instance.email,'sourabrahim@gmail.com']
+        from_email = os.environ.get('MAIL_USERNAME')
+        recipient_list = [instance.email,os.environ.get('MAIL_USERNAME')]
         email_to_send = EmailMessage(
             subject=subject,
             body=message,

@@ -133,7 +133,7 @@ class ResetPasswordSerializer(serializers.Serializer):
         user = User.objects.get(email=email)
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        reset_link = f"http://localhost:4200/account/reset-password/{uid}/{token}/"
+        reset_link = f"https://join.ibrahima-sourabie.com/account/reset-password/{uid}/{token}/"
 
         subject,message,from_email,recipient_list = message_body(user.first_name,reset_link,email)
        

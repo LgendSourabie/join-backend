@@ -1,4 +1,3 @@
-/db
 db.sqlite3
 /join_app/migrations
 /join_auth_permission/migrations

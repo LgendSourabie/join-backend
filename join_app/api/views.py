@@ -122,8 +122,6 @@ class CategoryOptionList(APIView):
     def get(self, request):
       
         options = [  {"id":index+1,"title":option[0]} for index,option in enumerate(Task.category_options)]
-        
-
         return Response(options, status=status.HTTP_200_OK)
 
 class SubtaskList(generics.ListAPIView):

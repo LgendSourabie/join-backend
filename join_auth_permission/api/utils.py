@@ -16,7 +16,7 @@ def message_body(username, reset_link, user_email):
     # Render the template with context
     message = render_to_string("emails/password_reset.html", context)
     from_email="contact@ibrahima-sourabie.com"
-    recipient_list=[user_email,'sourabrahim@gmail.com']
+    recipient_list=[user_email, "contact@ibrahima-sourabie.com"]
     return subject,message,from_email,recipient_list
 
 
