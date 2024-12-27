@@ -40,6 +40,10 @@ class Login(ObtainAuthToken):
             
             token, _ = Token.objects.get_or_create(user=validated_user)
 
+            old_guest_users = User.objects.filter(first_name = 'Guest')
+            if old_guest_users:
+                old_guest_users.delete()
+
             login(request, validated_user)
 
             if remember_me:
@@ -64,6 +68,11 @@ class GuestLogin(APIView):
         email = generate_guest_email()
         first_name = 'Guest'
 
+
+        old_guest_users = User.objects.filter(first_name = 'Guest')
+
+        if old_guest_users:
+            old_guest_users.delete()
         user = User.objects.create_user(
             username=generate_guest_email() ,
             email=email,
