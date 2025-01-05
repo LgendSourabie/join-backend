@@ -40,8 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-     'corsheaders',
+    'corsheaders',
     'rest_framework',
+    'django_filters',
     'rest_framework.authtoken',
     'join_app',
     'join_auth_permission',
@@ -58,13 +59,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# CORS_ALLOWED_ORIGINS = [
-#     # 'http://127.0.0.1:5500',
-#     # 'http://localhost:5500'
-#     '*'
-# ]
+CORS_ALLOWED_ORIGINS = [
+    'https://join.ibrahima-sourabie.com',
+]
 
-CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_ALL_ORIGINS = False
 
 
 CORS_ALLOW_HEADERS = [
@@ -100,7 +100,15 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    },
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'join_db',
+    #     'PORT':'3306',
+    #     'HOST': '127.0.0.1',
+    #     'USER': os.environ.get('SQL_USER'),
+    #     'PASSWORD':os.environ.get('SQL_PWD'),
+    # }
 }
 
 
@@ -152,7 +160,22 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    ]
+    ],
+
+         'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter',
+        'rest_framework.filters.SearchFilter',
+    ],
+        'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+],
+    'DEFAULT_THROTTLE_RATES':{
+        'anon':'50/minute',
+        'user':'120/minute',
+        'hundred':'100/second',
+    },
 }
 
 
