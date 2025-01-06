@@ -28,7 +28,12 @@ DEBUG = True
 
 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+        'https://join.ibrahima-sourabie.com',
+        'join-server.ibrahima-sourabie.com',
+        '127.0.0.1',
+        'localhost',
+]
 
 
 # Application definition
@@ -61,6 +66,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     'https://join.ibrahima-sourabie.com',
+    # 'join-server.ibrahima-sourabie.com',
 ]
 
 
@@ -98,17 +104,13 @@ WSGI_APPLICATION = 'join.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    },
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'join_db',
-    #     'PORT':'3306',
-    #     'HOST': '127.0.0.1',
-    #     'USER': os.environ.get('SQL_USER'),
-    #     'PASSWORD':os.environ.get('SQL_PWD'),
-    # }
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'join_db',
+        'PORT':'5432',
+        'HOST': '127.0.0.1',
+        'USER': 'postgres',#os.environ.get('SQL_USER'),
+        'PASSWORD':os.environ.get('SQL_PWD'),
+    }
 }
 
 
@@ -147,6 +149,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

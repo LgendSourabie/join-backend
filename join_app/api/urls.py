@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [ 
     path('accounts/',views.AccountsView.as_view(), name='accounts-list'),
@@ -16,4 +16,4 @@ urlpatterns = [
     path("users/subtasks/<int:author>/",views.SubtaskList.as_view(), name='subtasks-list'),
     path("tasks/",views.TaskList.as_view(), name='task-list'),
     path("tasks/<int:pk>/",views.TaskDetail.as_view(), name='task-detail'),
-]
+] + staticfiles_urlpatterns()
