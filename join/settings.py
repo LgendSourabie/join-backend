@@ -30,9 +30,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
         'https://join.ibrahima-sourabie.com',
-        'join-server.ibrahima-sourabie.com',
-        '127.0.0.1',
-        'localhost',
 ]
 
 
@@ -66,7 +63,6 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     'https://join.ibrahima-sourabie.com',
-    # 'join-server.ibrahima-sourabie.com',
 ]
 
 
@@ -108,7 +104,7 @@ DATABASES = {
         'NAME': 'join_db',
         'PORT':'5432',
         'HOST': '127.0.0.1',
-        'USER': 'postgres',#os.environ.get('SQL_USER'),
+        'USER': os.environ.get('SQL_USER'),
         'PASSWORD':os.environ.get('SQL_PWD'),
     }
 }
