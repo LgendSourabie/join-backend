@@ -21,15 +21,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-(zxwrkamp5$5&aox(p#bjro*)(5#*lztv%kowq_%*43yd-b053'
+SECRET_KEY ='django-insecure-(zxwrkamp5$5&aox(p#bjro*)(5#*lztv%kowq_%*43yd-b053'# os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 
 
 ALLOWED_HOSTS = [
         'https://join.ibrahima-sourabie.com',
+        'join.ibrahima-sourabie-server.com',
+        'localhost',
+        '127.0.0.1',
 ]
 
 
@@ -144,7 +147,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/staticfiles/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
