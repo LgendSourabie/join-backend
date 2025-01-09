@@ -2,4 +2,11 @@ db.sqlite3
 /join_app/migrations
 /join_auth_permission/migrations
 /env/
-/staticfiles/
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media
