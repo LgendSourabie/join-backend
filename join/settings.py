@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from config.settings_env import SQL_USER, SQL_PWD,MAIL_USERNAME, MAIL_PASSWORD,\
+        SECRET_KEY, EMAIL_HOST, EMAIL_BACKEND, DB_NAME, DB_HOST
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,10 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY ='django-insecure-(zxwrkamp5$5&aox(p#bjro*)(5#*lztv%kowq_%*43yd-b053'# os.environ.get('SECRET_KEY')
+SECRET_KEY = SECRET_KEY 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 
 
@@ -66,6 +68,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     'https://join.ibrahima-sourabie.com',
+    'https://join.ibrahima-sourabie-server.com',
 ]
 
 
@@ -104,11 +107,11 @@ WSGI_APPLICATION = 'join.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'join_db',
+        'NAME': DB_NAME,
         'PORT':'5432',
         'HOST': '127.0.0.1',
-        'USER': os.environ.get('SQL_USER'),
-        'PASSWORD':os.environ.get('SQL_PWD'),
+        'USER':SQL_USER,
+        'PASSWORD':SQL_PWD,
     }
 }
 
@@ -147,8 +150,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = '/staticfiles/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -181,9 +184,9 @@ REST_FRAMEWORK = {
 }
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_BACKEND = EMAIL_BACKEND
+EMAIL_HOST = EMAIL_HOST
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('MAIL_USERNAME')  
-EMAIL_HOST_PASSWORD = os.environ.get('MAIL_PASSWORD')
+EMAIL_HOST_USER = MAIL_USERNAME  
+EMAIL_HOST_PASSWORD = MAIL_PASSWORD
